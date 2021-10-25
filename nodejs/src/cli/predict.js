@@ -71,11 +71,8 @@ const cliModule = {
 
       while (true) {
         const task = await api.queryBatchTask(taskId);
-        if (task.state == 'Complete') {
-          const report = await axios.get(task.reportFile.endpointWithSas);
-          console.log(report.data);
+        if (task.state == 'Complete')
           break;
-        }
         if (task.state == 'Failed') {
           const report = await axios.get(task.reportFile.endpointWithSas);
           console.error(report.data);
