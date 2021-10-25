@@ -15,11 +15,19 @@ describe('Unit test', function () {
   before(function (done) {
     this.timeout(Number.MAX_SAFE_INTEGER);
     inquirer
-      .prompt([{
-        type: 'input',
-        name: 'subKey',
-        message: 'subscription key'
-      }])
+      .prompt([
+        {
+          type: 'input',
+          name: 'subKey',
+          message: 'subscription key'
+        },
+        {
+          type: 'list',
+          name: 'region',
+          message: 'region',
+          choices: require('../src/cli/common').region.choices
+        }
+      ])
       .then(function (answers) {
         testKey = answers.subKey;
       })

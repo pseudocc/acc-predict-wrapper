@@ -8,7 +8,30 @@ const commonBuilder = {
   },
   region: {
     alias: 'r',
-    choices: ['southeastasia'],
+    choices: [
+      'southeastasia',
+      'eastasia',
+      'japaneast',
+      'japanwest',
+      'koreacentral',
+      'centralindia',
+      'australiaeast',
+      'brazilsouth',
+      'canadacentral',
+      'eastus',
+      'eastus2',
+      'francecentral',
+      'northeurope',
+      'westeurope',
+      'southafricanorth',
+      'uksouth',
+      'centralus',
+      'northcentralus',
+      'southcentralus',
+      'westus',
+      'westus2',
+      'westcentralus'
+    ],
     demandOption: true,
     description: 'This is the location (or region) of your resource. '
       + 'You may need to use this field when making calls to the speech service API.'
