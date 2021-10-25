@@ -1,4 +1,5 @@
 'use strict';
+
 const yargs = require('yargs');
 const voices = require('./cli/voices');
 const predict = require('./cli/predict');

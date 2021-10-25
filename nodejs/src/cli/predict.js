@@ -3,9 +3,9 @@
 const fs = require('fs');
 const uuid = require('uuid');
 const path = require('path');
+const { default: axios } = require('axios');
 const { AccApi, getHost } = require('../api');
 const commonBuilder = require('./common');
-const { default: axios } = require('axios');
 
 /**
  * sleep for a while
@@ -67,7 +67,7 @@ const cliModule = {
       const fileIds = await api.uploadSsmlFiles(name, content.toString());
       console.log('Upload successfully, corresponding file Ids: ', fileIds);
       const taskId = await api.predictSsmlTags(fileIds, { voicePreferences });
-      console.log('Prediction task was submitted, start to tracking task [%s]', taskId);
+      console.log('Prediction task was submitted.\nStart to tracking task: %s', taskId);
 
       while (true) {
         const task = await api.queryBatchTask(taskId);
