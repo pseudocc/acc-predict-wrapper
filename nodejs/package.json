@@ -1,0 +1,27 @@
+{
+  "name": "acc-predict-wrapper",
+  "version": "0.1.0",
+  "description": "create an end-to-end prediction experience",
+  "main": "src/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "axios": "^0.23.0",
+    "uuid": "^8.3.2",
+    "yargs": "^17.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.3",
+    "inquirer": "^8.2.0",
+    "mocha": "^9.1.3"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "cognitive-services;audio-content-creation"
+  ],
+  "author": "Yu Ze",
+  "license": "MIT"
+}
