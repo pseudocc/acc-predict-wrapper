@@ -17,9 +17,10 @@ describe('Unit test', function () {
     inquirer
       .prompt([
         {
-          type: 'input',
+          type: 'password',
           name: 'subKey',
-          message: 'subscription key'
+          message: 'subscription key',
+          mask: '*'
         },
         {
           type: 'list',
