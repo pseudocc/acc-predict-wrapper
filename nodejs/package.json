@@ -20,7 +20,8 @@
     "test": "mocha"
   },
   "keywords": [
-    "cognitive-services;audio-content-creation"
+    "cognitive-services",
+    "audio-content-creation"
   ],
   "author": "Yu Ze",
   "license": "MIT"
