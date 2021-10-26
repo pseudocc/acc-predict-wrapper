@@ -1,6 +1,7 @@
 # acc-predict-wrapper-nodejs
 
 Using REST APIs of ACC (Audio Content Creation) to predict role/style for local SSML file.
+It is highly suggested that debugging on the unit test case to walk through the general flow and required parameters of this CLI tool.
 
 ## Install
 
@@ -49,6 +50,15 @@ node src/index.js predict --key=YOUR_KEY_GOES_HERE --region=YOUR_REGION --input=
 ### Notes
 
 Your can refer to the codes and all the related files in [test/index.js](https://github.com/pseudocc/acc-predict-wrapper/blob/main/nodejs/test/index.js).
+
+
+## Debug
+
+Open [Visual Studio Code](https://code.visualstudio.com/) under this directory (/nodejs).
+
+Add break points inside the async function `handler` of [src/cli/predict.js](https://github.com/pseudocc/acc-predict-wrapper/blob/main/nodejs/src/cli/predict.js#L56) and [src/cli/voices.js](https://github.com/pseudocc/acc-predict-wrapper/blob/main/nodejs/src/cli/voices.js#L13).  
+
+Then press `F5` to debug.
 
 ## Test
 
