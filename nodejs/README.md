@@ -4,7 +4,9 @@ Using REST APIs of ACC (Audio Content Creation) to predict role/style for local 
 
 ## Install
 
-Install Nodejs and add to PATH.
+Install [Nodejs](https://nodejs.org/en/) and add to PATH.
+
+No matter LTS or Current, they are both okay.
 
 ### Install Dependencies
 
@@ -32,7 +34,9 @@ List all voices and prepare your voice preferences preset.json.
 node src/index.js voices --key=YOUR_KEY_GOES_HERE --region=YOUR_REGION
 ```
 
-*See the definition of `VoicePreference` in src/cli/predict.js.*
+*See the definition of `VoicePreference` in [src/cli/predict.js](https://github.com/pseudocc/acc-predict-wrapper/blob/main/nodejs/src/cli/predict.js#L104).*
+
+*See the test input [preset.json](https://github.com/pseudocc/acc-predict-wrapper/blob/main/test/preset.json) as an example.*
 
 ### Predict SSML file
 
@@ -44,11 +48,11 @@ node src/index.js predict --key=YOUR_KEY_GOES_HERE --region=YOUR_REGION --input=
 
 ### Notes
 
-Your can refer to the codes and all the related files in test/index.js.
+Your can refer to the codes and all the related files in [test/index.js](https://github.com/pseudocc/acc-predict-wrapper/blob/main/nodejs/test/index.js).
 
 ## Test
 
-Verified on southeast Asia -- 10/25/2021.
+Verified on Southeast Asia -- 10/25/2021.
 
 ```
 npm test
