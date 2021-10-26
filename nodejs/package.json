@@ -24,5 +24,9 @@
     "audio-content-creation"
   ],
   "author": "Yu Ze",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pseudocc/acc-predict-wrapper"
+  }
 }
