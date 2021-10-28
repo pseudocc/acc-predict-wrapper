@@ -7,6 +7,7 @@ const inquirer = require('inquirer');
 const { fork } = require('child_process');
 
 let testKey;
+let testRegion;
 
 const entry = path.resolve(__dirname, '..', 'src', 'index.js');
 const testRoot = path.resolve(__dirname, '..', '..', 'test');
@@ -31,6 +32,7 @@ describe('Unit test', function () {
       ])
       .then(function (answers) {
         testKey = answers.subKey;
+        testRegion = answers.region;
       })
       .catch(function (error) {
         if (error.isTtyError)
@@ -47,7 +49,7 @@ describe('Unit test', function () {
       const p = fork(entry, [
         'voices',
         `--key="${testKey}"`,
-        '--region=southeastasia'
+        `--region=${testRegion}`
       ]);
       p.on('exit', function (code) {
         assert.equal(code, 0);
@@ -62,7 +64,7 @@ describe('Unit test', function () {
       const p = fork(entry, [
         'predict',
         `--key="${testKey}"`,
-        '--region=southeastasia',
+        `--region=${testRegion}`,
         `--input="${path.join(testRoot, 'test.xml')}"`,
         `--output="${path.join(testRoot, 'output')}"`,
         `--preferences="${path.join(testRoot, 'preset.json')}"`
