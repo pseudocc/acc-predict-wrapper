@@ -44,9 +44,32 @@ class AccApi {
          * @type {(AccVoice & {locale: string})[]}
          */
         const accVoices = resp.data;
+        if (!accVoices)
+          return [];
         return accVoices.filter(v => v.locale.toLowerCase() === 'zh-cn');
       }
       throw new Error('Failed to fetch voices for this subscription.');
+    });
+  }
+
+  /**
+   * @param {string} voiceName name of the voice to apply
+   * @param {string} content SSML content
+   * @returns {string} updated SSML content
+   */
+  applyVoice(voiceName, content) {
+    const url = `${this.host}/api/texttospeech/v3.0-beta1/vcg/tune`;
+    const data = {
+      IsSelectionFullSsml: true,
+      Ssml: content,
+      UpdateType: 'Voice',
+      Parameters: { Name: voiceName }
+    };
+    const p = axios.post(url, data, { headers: this.headers });
+    return p.then(resp => {
+      if (resp.status == 200)
+        return resp.data;
+      throw new Error('Failed to apply voice for the SSML');
     });
   }
 
@@ -101,11 +124,13 @@ class AccApi {
       inputSsmlFolderOrFiles: ids.map(id => ({ ssmlFolderOrFileId: id })),
       predictSsmlTagsKinds: [
         'ExpressAsRole',
-        'ExpressAsStyle',
-        'VoicePreference'
-      ],
-      rolePreferredVoiceInfos: options.voicePreferences
+        'ExpressAsStyle'
+      ]
     };
+    if (options.voicePreferences) {
+      data.rolePreferredVoiceInfos = options.voicePreferences;
+      data.predictSsmlTagsKinds.push('VoicePreference');
+    }
     const p = axios.post(url, data, { headers: this.headers });
     return p.then(resp => {
       if (resp.status == 200) {

@@ -3,9 +3,11 @@
 const fs = require('fs');
 const uuid = require('uuid');
 const path = require('path');
+const inquirer = require('inquirer');
 const { default: axios } = require('axios');
 const { AccApi, getHost } = require('../api');
 const commonBuilder = require('./common');
+const { prependPlugin } = require('../utils');
 
 /**
  * sleep for a while
@@ -14,6 +16,43 @@ const commonBuilder = require('./common');
  */
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * @param {AccApi} api 
+ * @param {string} voice 
+ * @returns {AccApi.AccVoice}
+ */
+async function pickVoice(api, voice) {
+  const allVoices = await api.listCNVoices();
+  const candidates = allVoices.filter(v => v.name.includes(voice));
+  switch (candidates.length) {
+    case 0:
+      throw new Error('Fail to find the specific voice with name: ' + voice);
+    case 1:
+      [voice] = candidates;
+    default:
+      await inquirer
+        .prompt([{
+          type: 'list',
+          name: 'voice',
+          message: 'voice name',
+          choices: candidates
+        }])
+        .then(function (answers) {
+          voice = candidates.find(v => v.name == answers.voice);
+        })
+        .catch(function (error) {
+          if (error.isTtyError)
+            throw new Error("Prompt couldn't be rendered in the current environment");
+
+          else
+            throw error;
+        });
+      break;
+  }
+
+  return voice;
 }
 
 const cliModule = {
@@ -34,12 +73,18 @@ const cliModule = {
     preferences: {
       alias: 'p',
       coerce: function (arg) {
-        const jsonAbsPath = path.resolve(arg);
-        return require(jsonAbsPath);
+        return arg && require(path.resolve(arg));
       },
-      demandOption: true,
+      conflicts: 'voice',
       description: 'A JSON file indicating the voice perferences for different roles. '
-        + 'Role names and voice types are case-sensitive.'
+        + 'Role names and voice types are case-sensitive. '
+        + 'This is the parameter for multicast performance.'
+    },
+    voice: {
+      alias: 'v',
+      conflicts: 'preferences',
+      description: 'The name of the voice to apply to the whole SSML file. '
+        + 'This is the parameter for monocast performance.'
     },
     name: {
       alias: 'n',
@@ -56,16 +101,31 @@ const cliModule = {
   handler: async function (argv) {
     const api = new AccApi(getHost(argv.region), argv.key);
     const encoding = argv.encoding;
-    const voicePreferences = argv.preferences;
     const name = argv.name || uuid.v4();
     const extname = path.extname(argv.input);
     const basename = path.basename(argv.input, extname);
+    /**
+     * @type {VoicePreference[]}
+     */
+    const voicePreferences = argv.preferences;
 
     try {
-      const content = await fs.promises.readFile(argv.input, { encoding });
+      const voice = argv.voice
+        ? await pickVoice(api, argv.voice)
+        : voicePreferences.find(v => v.roleName == 'Narrator').preferredVoiceInfo;
+      
+      let content = await fs.promises.readFile(argv.input, { encoding });
+      content = await api.applyVoice(voice.name, content);
+      console.log('Applied voice %s to the whole SSML file.', voice.name);
+      
+      // for multicast API call the plugin will be created automatically
+      if (!voicePreferences)
+        content = prependPlugin(content, [voice]);
       console.log('Length of the content: %d', content.length);
-      const fileIds = await api.uploadSsmlFiles(name, content.toString());
+
+      const fileIds = await api.uploadSsmlFiles(name, content);
       console.log('Upload successfully, corresponding file Ids: ', fileIds);
+
       const taskId = await api.predictSsmlTags(fileIds, { voicePreferences });
       console.log('Prediction task was submitted.\nStart to tracking task: %s', taskId);
 
