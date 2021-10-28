@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * @param {string} content SSML file content
  * @param {import("./api/acc").AccVoice[]} voices 
