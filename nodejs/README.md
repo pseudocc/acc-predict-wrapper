@@ -44,6 +44,15 @@ node src/index.js voices --key=YOUR_KEY_GOES_HERE --region=YOUR_REGION
 Prediction will take about 150 seconds to finish.
 
 ```bash
+node src/index.js predict --key=YOUR_KEY_GOES_HERE --region=YOUR_REGION --input=YOUR_SSML.xml --output=OUTPUT_DIRECTORY --voice=YOUR_FAVORITE_VOICE
+```
+
+  - `voice`: Please make sure you have the right access to this voice
+    and it supports role plays and styles/emotions.
+
+If you are trying to experience the multicast performance which is not currently enabled on Audio Content Creation web portal, try the following command line.
+
+```bash
 node src/index.js predict --key=YOUR_KEY_GOES_HERE --region=YOUR_REGION --input=YOUR_SSML.xml --output=OUTPUT_DIRECTORY --preferences=YOUR_PRESET.json
 ```
 
