@@ -6,7 +6,7 @@ const predict = require('./cli/predict');
 
 function check(argv) {
   const [command] = argv._;
-  if (command != 'predict')
+  if (command != 'predict' || argv.voice)
     return true;
 
   /**

@@ -7,6 +7,7 @@ const inquirer = require('inquirer');
 const { fork } = require('child_process');
 
 let testKey;
+let testRegion;
 
 const entry = path.resolve(__dirname, '..', 'src', 'index.js');
 const testRoot = path.resolve(__dirname, '..', '..', 'test');
@@ -31,6 +32,7 @@ describe('Unit test', function () {
       ])
       .then(function (answers) {
         testKey = answers.subKey;
+        testRegion = answers.region;
       })
       .catch(function (error) {
         if (error.isTtyError)
@@ -47,7 +49,7 @@ describe('Unit test', function () {
       const p = fork(entry, [
         'voices',
         `--key="${testKey}"`,
-        '--region=southeastasia'
+        `--region=${testRegion}`
       ]);
       p.on('exit', function (code) {
         assert.equal(code, 0);
@@ -57,20 +59,43 @@ describe('Unit test', function () {
   });
 
   describe('# Predict SSML', function () {
-    this.timeout(1e6);
-    it('should success', function (done) {
-      const p = fork(entry, [
-        'predict',
-        `--key="${testKey}"`,
-        '--region=southeastasia',
-        `--input="${path.join(testRoot, 'test.xml')}"`,
-        `--output="${path.join(testRoot, 'output')}"`,
-        `--preferences="${path.join(testRoot, 'preset.json')}"`
-      ]);
-      p.on('exit', function (code) {
-        assert.equal(code, 0);
-        assert.ok(fs.existsSync(path.join(testRoot, 'output', 'test.xml')));
-        done();
+    describe('monocast', function () {
+      this.timeout(1e6);
+      const outputRoot = path.join(testRoot, 'output', 'monocast');
+      it('should success', function (done) {
+        const p = fork(entry, [
+          'predict',
+          `--key="${testKey}"`,
+          `--region=${testRegion}`,
+          `--input="${path.join(testRoot, 'test.xml')}"`,
+          `--output="${outputRoot}"`,
+          '--voice="XiaomoNeural"'
+        ]);
+        p.on('exit', function (code) {
+          assert.equal(code, 0);
+          assert.ok(fs.existsSync(path.join(outputRoot, 'test.xml')));
+          done();
+        });
+      });
+    });
+
+    describe('multicast', function () {
+      this.timeout(1e6);
+      const outputRoot = path.join(testRoot, 'output', 'multicast');
+      it('should success', function (done) {
+        const p = fork(entry, [
+          'predict',
+          `--key="${testKey}"`,
+          `--region=${testRegion}`,
+          `--input="${path.join(testRoot, 'test.xml')}"`,
+          `--output="${outputRoot}"`,
+          `--preferences="${path.join(testRoot, 'preset.json')}"`
+        ]);
+        p.on('exit', function (code) {
+          assert.equal(code, 0);
+          assert.ok(fs.existsSync(path.join(outputRoot, 'test.xml')));
+          done();
+        });
       });
     });
   });
