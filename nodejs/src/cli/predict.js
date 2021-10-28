@@ -16,6 +16,16 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+/**
+ * @param {string} content SSML file content
+ */
+function clearEmptyTags(content) {
+  if (!content)
+    return;
+  const emptyTagRegex = /<[\w\s\."%=]+>[\s\n]*<\/[\w\s\."%=]+>/g;
+  return content.replace(emptyTagRegex, '');
+}
+
 const cliModule = {
   command: 'predict [options]',
   description: 'Predict a single SSML file.',
@@ -86,7 +96,7 @@ const cliModule = {
 
       for (const fileId of fileIds) {
         const ssmlFile = await api.querySsmlContent(fileId);
-        const content = ssmlFile.properties.Content;
+        const content = clearEmptyTags(ssmlFile.properties.Content);
         const suffix = ssmlFile.name.replace(name, '');
         const outputPath = path.join(argv.output, basename + suffix + extname);
         fs.writeFile(outputPath, content, { encoding }, function () {
