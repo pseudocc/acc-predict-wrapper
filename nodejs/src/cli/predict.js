@@ -31,6 +31,7 @@ async function pickVoice(api, voice) {
       throw new Error('Fail to find the specific voice with name: ' + voice);
     case 1:
       [voice] = candidates;
+      break;
     default:
       await inquirer
         .prompt([{
