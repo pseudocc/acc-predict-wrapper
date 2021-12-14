@@ -9,6 +9,7 @@ const commonBuilder = {
   region: {
     alias: 'r',
     choices: [
+      'localhost',
       'southeastasia',
       'eastasia',
       'japaneast',
