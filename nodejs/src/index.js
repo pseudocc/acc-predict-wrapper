@@ -2,6 +2,7 @@
 
 const yargs = require('yargs');
 const voices = require('./cli/voices');
+const versions = require('./cli/versions');
 const predict = require('./cli/predict');
 
 function check(argv) {
@@ -55,6 +56,7 @@ if (require.main == module) {
   yargs
     .command(voices)
     .command(predict)
+    .command(versions)
     .demandCommand()
     .check(check)
     .argv;
