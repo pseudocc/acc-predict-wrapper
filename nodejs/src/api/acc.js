@@ -23,6 +23,20 @@ class AccApi {
   }
 
   /**
+   * list version infos of API
+   * @returns {Promise<AccVersions>}
+   */
+  queryVersion() {
+    const url = `${this.host}/api/texttospeech/v3.0-beta1/VoiceGeneralTask/versions`;
+    const p = axios.post(url, null, { headers: this.headers });
+    return p.then(resp => {
+      if (resp.status == 200)
+        return resp.data;
+      throw new Error('Failed to fetch version infos for this subscription.');
+    });
+  }
+
+  /**
    * list all zh-CN voices of current subscription
    * @param {VoiceType[]} voiceTypes type of voices to include
    * @returns {Promise<AccVoice[]>} all available voices
@@ -241,4 +255,12 @@ module.exports = AccApi;
  * @property {string} id
  * @property {string} name
  * @property {VoiceType} voiceType
+ * 
+ * @typedef {object} AccExternToolVersion
+ * @property {string} current
+ * @property {string[]} others
+ * 
+ * @typedef {object} AccVersions
+ * @property {string} apiVersion
+ * @property {AccExternToolVersion} accPredictRoleAndStyleVersion
  */
