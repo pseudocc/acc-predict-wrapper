@@ -1,6 +1,7 @@
 'use strict';
 
 const { default: axios } = require('axios');
+const https = require('https');
 
 class AccApi {
   /**
@@ -12,14 +13,22 @@ class AccApi {
    * should check null for parameter host before calling this constructor
    * @param {EndpointURL} host 
    * @param {SubscriptionKey} subKey 
+   * @param {boolean} isLocalhost
    */
-  constructor(host, subKey) {
+  constructor(host, subKey, isLocalhost) {
     this.host = host;
     this.headers = {
       'accept': 'application/json',
       'Ocp-Apim-Subscription-Key': subKey,
       'Content-Type': 'application/json'
     };
+    this.httpsAgent = isLocalhost
+      ? new https.Agent({ rejectUnauthorized: false })
+      : undefined;
+  }
+
+  get axiosConfig() {
+    return ({ headers: this.headers, httpsAgent: this.httpsAgent });
   }
 
   /**
@@ -28,7 +37,7 @@ class AccApi {
    */
   queryVersion() {
     const url = `${this.host}/api/texttospeech/v3.0-beta1/voicegeneraltask/versions`;
-    const p = axios.get(url, null, { headers: this.headers });
+    const p = axios.get(url, null, this.axiosConfig);
     return p.then(resp => {
       if (resp.status == 200)
         return resp.data;
@@ -51,7 +60,7 @@ class AccApi {
         operatorKind: 'Contains'
       }];
     }
-    const p = axios.post(url, data, { headers: this.headers });
+    const p = axios.post(url, data, this.axiosConfig);
     return p.then(resp => {
       if (resp.status == 200) {
         /**
@@ -79,7 +88,7 @@ class AccApi {
       UpdateType: 'Voice',
       Parameters: { Name: voiceName }
     };
-    const p = axios.post(url, data, { headers: this.headers });
+    const p = axios.post(url, data, this.axiosConfig);
     return p.then(resp => {
       if (resp.status == 200)
         return resp.data;
@@ -106,7 +115,7 @@ class AccApi {
         ssmlMaxCharLengthOfPlainTextPerSegmentMode: 'SsmlFileMaxPlainTextCharLength'
       }
     };
-    const p = axios.post(url, data, { headers: this.headers });
+    const p = axios.post(url, data, this.axiosConfig);
     return p.then(resp => {
       if (resp.status == 200) {
         /**
@@ -145,7 +154,7 @@ class AccApi {
       data.rolePreferredVoiceInfos = options.voicePreferences;
       data.predictSsmlTagsKinds.push('VoicePreference');
     }
-    const p = axios.post(url, data, { headers: this.headers });
+    const p = axios.post(url, data, this.axiosConfig);
     return p.then(resp => {
       if (resp.status == 200) {
         /**
@@ -184,7 +193,7 @@ class AccApi {
         responseSettings: { IsIncludeArtifactUrlWithSas: true }
       }
     };
-    const p = axios.post(url, data, { headers: this.headers });
+    const p = axios.post(url, data, this.axiosConfig);
     return p.then(resp => {
       if (resp.status == 200) {
         /**
@@ -219,7 +228,7 @@ class AccApi {
         responseSettings: { IncludePropertiesInFile: "Content" }
       }
     };
-    const p = axios.post(url, data, { headers: this.headers });
+    const p = axios.post(url, data, this.axiosConfig);
     return p.then(resp => {
       if (resp.status == 200) {
         /**
@@ -255,11 +264,11 @@ module.exports = AccApi;
  * @property {string} id
  * @property {string} name
  * @property {VoiceType} voiceType
- * 
+ *
  * @typedef {object} AccExternToolVersion
  * @property {string} current
  * @property {string[]} others
- * 
+ *
  * @typedef {object} AccVersions
  * @property {string} apiVersion
  * @property {AccExternToolVersion|string} accPredictRoleAndStyleVersion
