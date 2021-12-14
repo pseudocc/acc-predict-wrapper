@@ -37,7 +37,7 @@ class AccApi {
    */
   queryVersion() {
     const url = `${this.host}/api/texttospeech/v3.0-beta1/voicegeneraltask/versions`;
-    const p = axios.get(url, null, this.axiosConfig);
+    const p = axios.get(url, this.axiosConfig);
     return p.then(resp => {
       if (resp.status == 200)
         return resp.data;
