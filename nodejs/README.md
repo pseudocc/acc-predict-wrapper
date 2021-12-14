@@ -24,7 +24,16 @@ Get help
 ```bash
 node src/index.js --help
 node src/index.js voices --help
+node src/index.js versions --help
 node src/index.js predict --help
+```
+
+### See current API Versions
+
+List ACC API version and predict tool version.
+
+```bash
+node src/index.js voices --key=YOUR_KEY_GOES_HERE --region=YOUR_REGION
 ```
 
 ### List all zh-CN Voices
