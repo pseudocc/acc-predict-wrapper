@@ -27,8 +27,8 @@ class AccApi {
    * @returns {Promise<AccVersions>}
    */
   queryVersion() {
-    const url = `${this.host}/api/texttospeech/v3.0-beta1/VoiceGeneralTask/versions`;
-    const p = axios.post(url, null, { headers: this.headers });
+    const url = `${this.host}/api/texttospeech/v3.0-beta1/voicegeneraltask/versions`;
+    const p = axios.get(url, null, { headers: this.headers });
     return p.then(resp => {
       if (resp.status == 200)
         return resp.data;
@@ -262,5 +262,5 @@ module.exports = AccApi;
  * 
  * @typedef {object} AccVersions
  * @property {string} apiVersion
- * @property {AccExternToolVersion} accPredictRoleAndStyleVersion
+ * @property {AccExternToolVersion|string} accPredictRoleAndStyleVersion
  */
