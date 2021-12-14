@@ -10,7 +10,7 @@ const cliModule = {
     ...commonBuilder
   },
   handler: async function (argv) {
-    const api = new AccApi(getHost(argv.region), argv.key);
+    const api = new AccApi(getHost(argv.region, argv.port), argv.key);
     const versions = await api.queryVersion();
     const pversion = versions.accPredictRoleAndStyleVersion;
     

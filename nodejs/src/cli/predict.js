@@ -100,7 +100,7 @@ const cliModule = {
     }
   },
   handler: async function (argv) {
-    const api = new AccApi(getHost(argv.region), argv.key);
+    const api = new AccApi(getHost(argv.region, argv.port), argv.key);
     const encoding = argv.encoding;
     const name = argv.name || uuid.v4();
     const extname = path.extname(argv.input);

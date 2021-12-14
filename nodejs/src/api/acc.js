@@ -27,7 +27,7 @@ class AccApi {
    * @returns {Promise<AccVersions>}
    */
   queryVersion() {
-    const url = `${this.host}/api/texttospeech/v3.0-beta1/VoiceGeneralTask/versions`;
+    const url = `${this.host}/api/texttospeech/v3.0-beta1/voicegeneraltask/versions`;
     const p = axios.post(url, null, { headers: this.headers });
     return p.then(resp => {
       if (resp.status == 200)
