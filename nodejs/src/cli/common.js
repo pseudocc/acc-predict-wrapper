@@ -36,6 +36,10 @@ const commonBuilder = {
     demandOption: true,
     description: 'This is the location (or region) of your resource. '
       + 'You may need to use this field when making calls to the speech service API.'
+  },
+  port: {
+    default: 44311,
+    description: 'localhost port.'
   }
 };
 
