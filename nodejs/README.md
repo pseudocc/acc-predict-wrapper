@@ -67,6 +67,8 @@ node src/index.js predict --key=YOUR_KEY_GOES_HERE --region=YOUR_REGION --input=
 
 You can also specify the tool version with something like `--tool=1.0.2`. Refer to the section `See current API Versions` for more.
 
+Feed the tool with `--clean` to remove all intermediate SSML files generated during the process.
+
 ### Notes
 
 Your can refer to the codes and all the related files in [test/index.js](https://github.com/pseudocc/acc-predict-wrapper/blob/main/nodejs/test/index.js).
