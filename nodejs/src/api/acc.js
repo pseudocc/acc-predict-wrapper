@@ -136,7 +136,7 @@ class AccApi {
     if (!fileIds || !fileIds.length)
       return;
     const url = `${this.host}/api/texttospeech/v3.0-beta1/vcg/deletessmlfolderorfiles`;
-    const p = axios.post(url, fileIds, { headers: this.headers });
+    const p = axios.post(url, fileIds, this.axiosConfig);
     return p.then(resp => {
       if (resp.status == 200 || resp.status == 202)
         return;
