@@ -33,7 +33,7 @@ node src/index.js predict --help
 List ACC API version and predict tool version.
 
 ```bash
-node src/index.js voices --key=YOUR_KEY_GOES_HERE --region=YOUR_REGION
+node src/index.js versions --key=YOUR_KEY_GOES_HERE --region=YOUR_REGION
 ```
 
 ### List all zh-CN Voices
@@ -65,10 +65,11 @@ If you are trying to experience the multicast performance which is not currently
 node src/index.js predict --key=YOUR_KEY_GOES_HERE --region=YOUR_REGION --input=YOUR_SSML.xml --output=OUTPUT_DIRECTORY --preferences=YOUR_PRESET.json
 ```
 
+You can also specify the tool version with something like `--tool=1.0.2`. Refer to the section `See current API Versions` for more.
+
 ### Notes
 
 Your can refer to the codes and all the related files in [test/index.js](https://github.com/pseudocc/acc-predict-wrapper/blob/main/nodejs/test/index.js).
-
 
 ## Debug
 

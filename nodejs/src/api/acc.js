@@ -126,6 +126,7 @@ class AccApi {
    * @param {{
    * name: string, 
    * voicePreferences: import('../cli/predict').VoicePreference
+   * toolVersion: string
    * }} options predict API options
    * @returns {Guid} submitted batch task Id
    */
@@ -139,7 +140,8 @@ class AccApi {
       predictSsmlTagsKinds: [
         'ExpressAsRole',
         'ExpressAsStyle'
-      ]
+      ],
+      toolVersion: options.toolVersion
     };
     if (options.voicePreferences) {
       data.rolePreferredVoiceInfos = options.voicePreferences;
