@@ -12,7 +12,9 @@ const cliModule = {
   handler: async function (argv) {
     const api = new AccApi(getHost(argv.region, argv.port), argv.key);
     const versions = await api.queryVersion();
-    const pversion = versions.accPredictRoleAndStyleVersion;
+    const pversion = typeof versions.accPredictRoleAndStyleVersion == 'string'
+      ? { current: versions.accPredictRoleAndStyleVersion }
+      : versions.accPredictRoleAndStyleVersion;
     
     console.log('API version: %s', versions.apiVersion);
     console.log('Predict:');
