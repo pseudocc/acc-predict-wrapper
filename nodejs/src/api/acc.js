@@ -129,6 +129,22 @@ class AccApi {
   }
 
   /**
+   * delete ssml files
+   * @param {Guid[]} fileIds files to delete
+   */
+  deleteSsmlFiles(fileIds) {
+    if (!fileIds || !fileIds.length)
+      return;
+    const url = `${this.host}/api/texttospeech/v3.0-beta1/vcg/deletessmlfolderorfiles`;
+    const p = axios.post(url, fileIds, { headers: this.headers });
+    return p.then(resp => {
+      if (resp.status == 200 || resp.status == 202)
+        return;
+      throw new Error('Failed to delete files from ACC.');
+    });
+  }
+
+  /**
    * predict role/style for a single SSML file.
    * should upload first before calling this function.
    * @param {Guid[]} ids SSML files' Id

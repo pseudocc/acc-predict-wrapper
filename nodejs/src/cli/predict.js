@@ -101,6 +101,11 @@ const cliModule = {
     tool: {
       alias: 't',
       description: 'The version of the prediction tool. use `versions` command to list all supported values.'
+    },
+    clean: {
+      alias: 'c',
+      default: false,
+      description: 'Delete uploaded intermediate files on end.'
     }
   },
   handler: async function (argv) {
@@ -157,6 +162,11 @@ const cliModule = {
         fs.writeFile(outputPath, content, { encoding }, function () {
           console.log('File %s is downloaded successfully.', ssmlFile.name);
         });
+      }
+
+      if (argv.clean) {
+        await api.deleteSsmlFiles(fileIds);
+        console.log('All intermediate SSML files are deleted, file Ids:', fileIds);
       }
     }
     catch (e) {
