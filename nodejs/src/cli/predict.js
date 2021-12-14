@@ -131,7 +131,7 @@ const cliModule = {
       const fileIds = await api.uploadSsmlFiles(name, content);
       console.log('Upload successfully, corresponding file Ids: ', fileIds);
 
-      const taskId = await api.predictSsmlTags(fileIds, { voicePreferences });
+      const taskId = await api.predictSsmlTags(fileIds, { voicePreferences, toolVersion: argv.tool });
       console.log('Prediction task was submitted.\nStart to tracking task: %s', taskId);
 
       while (true) {
