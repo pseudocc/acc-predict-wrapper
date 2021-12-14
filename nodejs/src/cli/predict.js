@@ -104,7 +104,7 @@ const cliModule = {
     },
     clean: {
       alias: 'c',
-      default: false,
+      type: 'boolean',
       description: 'Delete uploaded intermediate files on end.'
     }
   },
