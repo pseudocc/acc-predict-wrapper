@@ -97,6 +97,10 @@ const cliModule = {
       choices: ['ascii', 'utf8', 'utf-8', 'utf16le', 'ucs2', 'ucs-2', 'base64', 'base64url', 'latin1', 'binary', 'hex'],
       default: 'utf8',
       description: 'The encoding for the input and output ssml file.'
+    },
+    tool: {
+      alias: 't',
+      description: 'The version of the prediction tool. use `versions` command to list all supported values.'
     }
   },
   handler: async function (argv) {
