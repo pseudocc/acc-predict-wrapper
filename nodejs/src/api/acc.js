@@ -126,8 +126,12 @@ class AccApi {
   deleteSsmlFiles(fileIds) {
     if (!fileIds || !fileIds.length)
       return;
-    const url = `${this.host}/api/texttospeech/v3.0-beta1/vcg/deletessmlfolderorfiles`;
-    const p = axios.post(url, fileIds, { headers: this.headers });
+    const url = `${this.host}/api/texttospeech/v3.0-beta1/vcg/delete-acc-resource-folder-or-files`;
+    const data = {
+      accResourceFolderOrFileIds: fileIds,
+      isDeleteAssociatedAudioFiles: true
+    };
+    const p = axios.post(url, data, { headers: this.headers });
     return p.then(resp => {
       if (resp.status == 200 || resp.status == 202)
         return;
