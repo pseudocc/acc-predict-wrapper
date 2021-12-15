@@ -137,7 +137,7 @@ const cliModule = {
       console.log('Upload successfully, corresponding file Ids: ', fileIds);
 
       const taskId = await api.predictSsmlTags(fileIds, { voicePreferences, toolVersion: argv.tool });
-      console.log('Prediction task was submitted.\nStart to tracking task: %s', taskId);
+      console.log('Prediction task was submitted.\nStart tracking task: %s', taskId);
 
       while (true) {
         const task = await api.queryBatchTask(taskId);
@@ -163,15 +163,16 @@ const cliModule = {
           console.log('File %s is downloaded successfully.', ssmlFile.name);
         });
       }
-
-      if (argv.clean) {
-        await api.deleteSsmlFiles(fileIds);
-        console.log('All intermediate SSML files are deleted, file Ids:', fileIds);
-      }
     }
     catch (e) {
       console.error(e);
       process.exit(1);
+    }
+    finally {
+      if (argv.clean) {
+        await api.deleteSsmlFiles(fileIds);
+        console.log('All intermediate SSML files are deleted, file Ids:', fileIds);
+      }
     }
   }
 };

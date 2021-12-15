@@ -284,8 +284,8 @@ module.exports = AccApi;
  * @property {VoiceType} voiceType
  *
  * @typedef {object} AccExternToolVersion
- * @property {string} current
- * @property {string[]} others
+ * @property {string} defaultVersion
+ * @property {string[]} toolVersions
  *
  * @typedef {object} AccVersions
  * @property {string} apiVersion
