@@ -19,8 +19,8 @@ const cliModule = {
     console.log('API version: %s', versions.apiVersion);
     console.log('Predict:');
     console.log('\tdefault version: %s', pversion.defaultVersion);
-    if (pversion.toolVersions && pversion.toolVersions.length > 1) {
-      console.log('\tall versions: %o', pversion.toolVersions);
+    if (pversion.supportedVersions && pversion.supportedVersions.length > 1) {
+      console.log('\tall versions: %o', pversion.supportedVersions);
       console.log('\tnon-default versions are unstable and might have bugs, you should be aware of using them.');
     }
   }

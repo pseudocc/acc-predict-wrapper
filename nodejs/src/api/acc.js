@@ -285,7 +285,7 @@ module.exports = AccApi;
  *
  * @typedef {object} AccExternToolVersion
  * @property {string} defaultVersion
- * @property {string[]} toolVersions
+ * @property {string[]} supportedVersions
  *
  * @typedef {object} AccVersions
  * @property {string} apiVersion
