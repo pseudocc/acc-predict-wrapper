@@ -10,7 +10,7 @@ const cliModule = {
     ...commonBuilder
   },
   handler: async function (argv) {
-    const api = new AccApi(getHost(argv.region), argv.key);
+    const api = new AccApi(getHost(argv.region, argv.port), argv.key, argv.region == 'localhost');
     const versions = await api.queryVersion();
     const pversion = typeof versions.accPredictRoleAndStyleVersion == 'string'
       ? { defaultVersion: versions.accPredictRoleAndStyleVersion }
@@ -21,7 +21,7 @@ const cliModule = {
     console.log('\tdefault version: %s', pversion.defaultVersion);
     if (pversion.toolVersions && pversion.toolVersions.length > 1) {
       console.log('\tall versions: %o', pversion.toolVersions);
-      console.log('\tnon-default versions are unstable and might have bugs, you should be aware of using it.');
+      console.log('\tnon-default versions are unstable and might have bugs, you should be aware of using them.');
     }
   }
 };
