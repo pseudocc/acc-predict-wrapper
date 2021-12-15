@@ -118,6 +118,10 @@ const cliModule = {
      * @type {VoicePreference[]}
      */
     const voicePreferences = argv.preferences;
+    /**
+     * @type {AccApi.Guid[]}
+     */
+    let fileIds;
 
     try {
       const voice = argv.voice
@@ -133,7 +137,7 @@ const cliModule = {
         content = prependPlugin(content, [voice]);
       console.log('Length of the content: %d', content.length);
 
-      const fileIds = await api.uploadSsmlFiles(name, content);
+      fileIds = await api.uploadSsmlFiles(name, content);
       console.log('Upload successfully, corresponding file Ids: ', fileIds);
 
       const taskId = await api.predictSsmlTags(fileIds, { voicePreferences, toolVersion: argv.tool });
@@ -169,7 +173,7 @@ const cliModule = {
       process.exit(1);
     }
     finally {
-      if (argv.clean) {
+      if (argv.clean && fileIds) {
         await api.deleteSsmlFiles(fileIds);
         console.log('All intermediate SSML files are deleted, file Ids:', fileIds);
       }

@@ -21,7 +21,7 @@ const cliModule = {
     console.log('\tdefault version: %s', pversion.defaultVersion);
     if (pversion.toolVersions && pversion.toolVersions.length > 1) {
       console.log('\tall versions: %o', pversion.toolVersions);
-      console.log('\tnon-default versions are unstable and might have bugs, you should be aware of using it.');
+      console.log('\tnon-default versions are unstable and might have bugs, you should be aware of using them.');
     }
   }
 };
