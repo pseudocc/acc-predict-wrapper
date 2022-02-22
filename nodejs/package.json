@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "axios": "^0.23.0",
+    "jsonfile": "^6.1.0",
     "uuid": "^8.3.2",
     "yargs": "^17.2.1"
   },

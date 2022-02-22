@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const { writeFileSync } = require('jsonfile');
 const { AccApi, getHost } = require('../api');
 const commonBuilder = require('./common');
 
@@ -14,6 +15,11 @@ const cliModule = {
       demandOption: true,
       description: 'The input plain text file.'
     },
+    output: {
+      alias: 'o',
+      demandOption: true,
+      description: 'The output JSON file.'
+    },
     encoding: {
       alias: 'e',
       choices: ['ascii', 'utf8', 'utf-8', 'utf16le', 'ucs2', 'ucs-2', 'base64', 'base64url', 'latin1', 'binary', 'hex'],
@@ -22,7 +28,7 @@ const cliModule = {
     }
   },
   handler: async function (argv) {
-    const { region, key, input, encoding } = argv;
+    const { region, key, input, encoding, output } = argv;
     const api = new AccApi(getHost(region), key);
     try {
       const promises = [];
@@ -40,7 +46,7 @@ const cliModule = {
         }
         line++;
       }
-      console.log(JSON.stringify(response));
+      writeFileSync(output, response, { encoding, spaces: 2 });
     }
     catch (e) {
       console.error(e);
