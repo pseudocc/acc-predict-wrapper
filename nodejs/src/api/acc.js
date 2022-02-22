@@ -256,6 +256,34 @@ class AccApi {
       throw new Error('Failed to fetch file content.');
     });
   }
+
+  queryZhCNPolyPhonePron(text, range) {
+    const url = `${this.host}/api/texttospeech/v3.0-beta1/vcg/query-polyphone-pron`;
+    const data = {
+      selectionOfPlainText: range,
+      language: 'zh-CN',
+      plainText: text,
+      phoneSetTypeNames: [ 'Sapi' ]
+    };
+    const p = axios.post(url, data, { headers: this.headers });
+    return p.then(resp => {
+      if (resp.status == 200) {
+        const { polyphoneWords } = resp.data;
+        const response = [];
+        for (const pw of polyphoneWords) {
+          if (pw.syllables && pw.syllables[0] && pw.syllables[0].phones && pw.syllables[0].phones[0]) {
+            response.push({
+              text: pw.text,
+              position: pw.position,
+              pronunciation: pw.syllables[0].phones[0].sapiPhone
+            });
+          }
+        }
+        return response;
+      }
+      throw new Error('Failed to query polyphone pronunciation.');
+    });
+  }
 };
 
 module.exports = AccApi;
