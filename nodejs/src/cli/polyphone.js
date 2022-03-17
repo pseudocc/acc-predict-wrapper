@@ -5,6 +5,8 @@ const { writeFileSync } = require('jsonfile');
 const { AccApi, getHost } = require('../api');
 const commonBuilder = require('./common');
 
+const errorSymbol = Symbol('ERRORRED');
+
 const cliModule = {
   command: 'polyphone [options]',
   description: 'Query polyphone words\' pronunciation.',
@@ -41,7 +43,10 @@ const cliModule = {
       const response = [];
       let line = 1;
       for (const result of results) {
-        if (result) {
+        if (result == errorSymbol) {
+          response.push({ text: lines[line - 1], line, errorred: true });
+        }
+        else if (result) {
           response.push({ text: lines[line - 1], line, result });
         }
         line++;
@@ -58,7 +63,13 @@ const cliModule = {
 async function tryQueryPron(api, text) {
   let response;
   if (text && Array.prototype.some.call(text, checkPolyphone)) {
-    response = await api.queryZhCNPolyPhonePron(text);
+    try {
+      response = await api.queryZhCNPolyPhonePron(text);
+    }
+    catch (e) {
+      response = errorSymbol;
+      console.error(e);
+    }
   }
   return response;
 }
