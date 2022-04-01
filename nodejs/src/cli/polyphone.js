@@ -60,17 +60,46 @@ const cliModule = {
   }
 };
 
+// This is only a walkaround since the API did not handle multiple
+// utterances input successfully.
+// the length of each element in the set must be 1.
+const sentenceBreak = new Set(['。', '！', '？', '…', '!', '?']);
+const checkSentenceBreak = Set.prototype.has.bind(sentenceBreak);
 async function tryQueryPron(api, text) {
   let response;
-  if (text && Array.prototype.some.call(text, checkPolyphone)) {
-    try {
-      response = await api.queryZhCNPolyPhonePron(text);
+  if (!text)
+    return null;
+
+  try {
+    let range = {
+      offset: 0,
+      length: 0
+    };
+    let hasPolyphone = false;
+    response = [];
+    for (const char of text) {
+      range.length++;
+      if (checkSentenceBreak(char)) {
+        if (hasPolyphone) {
+          const subResponse = await api.queryZhCNPolyPhonePron(text, range);
+          response.push(...subResponse);
+        }
+        hasPolyphone = false;
+        range.length = 0;
+      }
+      else if (!hasPolyphone && checkPolyphone(char)) {
+        hasPolyphone = true;
+      }
     }
-    catch (e) {
-      response = errorSymbol;
-      console.error(e);
-    }
+
+    if (!response.length)
+      return null;
   }
+  catch (e) {
+    response = errorSymbol;
+    console.error(e);
+  }
+
   return response;
 }
 
