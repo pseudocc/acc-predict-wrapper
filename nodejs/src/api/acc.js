@@ -255,24 +255,29 @@ class AccApi {
   async internalPost(url, data) {
     const requestLimit = 50;
     const limitWindow = 5000;
-    while (this.requests.length >= requestLimit) {
-      const timestamp = this.requests.shift();
-      await sleep(timestamp + limitWindow - Date.now());
-    }
-    let maxRetry = 3;
+    let maxRetry = 10;
     do {
-      this.requests.push(Date.now());
-      const resp = await axios.post(url, data, { headers: this.headers });
-      if (resp.status == 200 || resp.status == 202)
-        return resp.data;
-      if (resp.status == 503 || resp.status == 429) {
-        const delay = resp.headers['Retry-After'] || 1; // seconds
-        if (maxRetry--) {
-          await sleep(delay * 1000);
-          continue;
-        }
+      while (this.requests.length >= requestLimit) {
+        const timestamp = this.requests.shift();
+        await sleep(timestamp + limitWindow - Date.now());
       }
-      throw new Error(`Failed to send POST request to ${url}, HTTP status: ${resp.statusText}`);
+      this.requests.push(Date.now());
+      try {
+        const resp = await axios.post(url, data, { headers: this.headers });
+        if (resp.status == 200 || resp.status == 202)
+          return resp.data;
+      }
+      catch (e) {
+        const resp = e.response;
+        if (resp.status == 503 || resp.status == 429) {
+          const delay = resp.headers['retry-after'] || 1; // seconds
+          if (maxRetry--) {
+            await sleep(delay * 1000);
+            continue;
+          }
+        }
+        throw e;
+      }
     } while (true);
   }
 };
