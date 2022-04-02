@@ -8,6 +8,7 @@ class AccApi {
    */
   host;
   headers;
+  requests;
   /**
    * should check null for parameter host before calling this constructor
    * @param {EndpointURL} host 
@@ -20,6 +21,7 @@ class AccApi {
       'Ocp-Apim-Subscription-Key': subKey,
       'Content-Type': 'application/json'
     };
+    this.requests = [];
   }
 
   /**
@@ -41,7 +43,7 @@ class AccApi {
    * @param {VoiceType[]} voiceTypes type of voices to include
    * @returns {Promise<AccVoice[]>} all available voices
    */
-  listCNVoices(voiceTypes) {
+  async listCNVoices(voiceTypes) {
     const url = `${this.host}/api/texttospeech/v3.0-beta1/vcg/voices`;
     const data = { queryCondition: {} };
     if (voiceTypes != null) {
@@ -51,19 +53,13 @@ class AccApi {
         operatorKind: 'Contains'
       }];
     }
-    const p = axios.post(url, data, { headers: this.headers });
-    return p.then(resp => {
-      if (resp.status == 200) {
-        /**
-         * @type {(AccVoice & {locale: string})[]}
-         */
-        const accVoices = resp.data;
-        if (!accVoices)
-          return [];
-        return accVoices.filter(v => v.locale.toLowerCase() === 'zh-cn');
-      }
-      throw new Error('Failed to fetch voices for this subscription.');
-    });
+    /**
+     * @type {(AccVoice & {locale: string})[]}
+     */
+    const accVoices = await this.internalPost(url, data);
+    if (!accVoices)
+      return [];
+    return accVoices.filter(v => v.locale.toLowerCase() === 'zh-cn');
   }
 
   /**
@@ -71,7 +67,7 @@ class AccApi {
    * @param {string} content SSML content
    * @returns {string} updated SSML content
    */
-  applyVoice(voiceName, content) {
+  async applyVoice(voiceName, content) {
     const url = `${this.host}/api/texttospeech/v3.0-beta1/vcg/tune`;
     const data = {
       IsSelectionFullSsml: true,
@@ -79,12 +75,7 @@ class AccApi {
       UpdateType: 'Voice',
       Parameters: { Name: voiceName }
     };
-    const p = axios.post(url, data, { headers: this.headers });
-    return p.then(resp => {
-      if (resp.status == 200)
-        return resp.data;
-      throw new Error('Failed to apply voice for the SSML');
-    });
+    return await this.internalPost(url, data);
   }
 
   /**
@@ -93,7 +84,7 @@ class AccApi {
    * @param {string} content SSML content
    * @returns {Guid[]} corresponding file Ids
    */
-  uploadSsmlFiles(fileName, content) {
+  async uploadSsmlFiles(fileName, content) {
     const url = `${this.host}/api/texttospeech/v3.0-beta1/vcg/uploadssmlfiles`;
     const data = {
       parentFolderId: null,
@@ -106,24 +97,19 @@ class AccApi {
         ssmlMaxCharLengthOfPlainTextPerSegmentMode: 'SsmlFileMaxPlainTextCharLength'
       }
     };
-    const p = axios.post(url, data, { headers: this.headers });
-    return p.then(resp => {
-      if (resp.status == 200) {
-        /**
-         * @type {({vcgFiles: {id: Guid}[]})[]}
-         */
-        const [{ vcgFiles }] = resp.data;
-        return vcgFiles.map(v => v.id);
-      }
-      throw new Error('Failed to upload file to ACC.');
-    });
+
+    /**
+     * @type {({vcgFiles: {id: Guid}[]})[]}
+     */
+    const [{ vcgFiles }] = await this.internalPost(url, data);
+    return vcgFiles.map(v => v.id);
   }
 
   /**
    * delete ssml files
    * @param {Guid[]} fileIds files to delete
    */
-  deleteSsmlFiles(fileIds) {
+  async deleteSsmlFiles(fileIds) {
     if (!fileIds || !fileIds.length)
       return;
     const url = `${this.host}/api/texttospeech/v3.0-beta1/vcg/delete-acc-resource-folder-or-files`;
@@ -131,12 +117,7 @@ class AccApi {
       accResourceFolderOrFileIds: fileIds,
       isDeleteAssociatedAudioFiles: true
     };
-    const p = axios.post(url, data, { headers: this.headers });
-    return p.then(resp => {
-      if (resp.status == 200 || resp.status == 202)
-        return;
-      throw new Error('Failed to delete files from ACC.');
-    });
+    await this.internalPost(url, data);
   }
 
   /**
@@ -150,7 +131,7 @@ class AccApi {
    * }} options predict API options
    * @returns {Guid} submitted batch task Id
    */
-  predictSsmlTags(ids, options) {
+  async predictSsmlTags(ids, options) {
     if (ids == null || ids.length == 0)
       throw new Error('ids is null or empty.');
     const url = `${this.host}/api/texttospeech/v3.0-beta1/vcg/predictssmltags`;
@@ -167,24 +148,20 @@ class AccApi {
       data.rolePreferredVoiceInfos = options.voicePreferences;
       data.predictSsmlTagsKinds.push('VoicePreference');
     }
-    const p = axios.post(url, data, { headers: this.headers });
-    return p.then(resp => {
-      if (resp.status == 200) {
-        /**
-         * @type {{submittedTask: {id: Guid}}}
-         */
-        const { submittedTask } = resp.data;
-        return submittedTask.id;
-      }
-      throw new Error('Failed to submit prediction task.');
-    });
+
+    /**
+     * @type {{submittedTask: {id: Guid}}}
+     */
+    const { submittedTask } = await this.internalPost(url, data);
+    return submittedTask.id;
+
   }
 
   /**
    * query the processing status of a batch task by Id.
    * @param {Guid} id batch task id
    */
-  queryBatchTask(id) {
+  async queryBatchTask(id) {
     if (!id)
       throw new Error('id is null or empty.');
     const url = `${this.host}/api/texttospeech/v3.0-beta1/voicegeneraltask/vcgpredictssmltagtasks`;
@@ -206,28 +183,24 @@ class AccApi {
         responseSettings: { IsIncludeArtifactUrlWithSas: true }
       }
     };
-    const p = axios.post(url, data, { headers: this.headers });
-    return p.then(resp => {
-      if (resp.status == 200) {
-        /**
-         * @type {{tasks: {
-         * id: Guid,
-         * state: BatchState
-         * reportFile: {endpointWithSas: EndpointURL}
-         * }[]}}
-         */
-        const { tasks: [thisTask] } = resp.data;
-        return thisTask;
-      }
-      throw new Error('Failed to query prediction processing state.');
-    });
+
+    /**
+     * @type {{tasks: {
+     * id: Guid,
+     * state: BatchState
+     * reportFile: {endpointWithSas: EndpointURL}
+     * }[]}}
+     */
+    const { tasks: [thisTask] } = await this.internalPost(url, data);
+    return thisTask;
   }
+
 
   /**
    * get the content of SSML file by Id
    * @param {Guid} id SSML file Id
    */
-  querySsmlContent(id) {
+  async querySsmlContent(id) {
     if (!id == null)
       throw new Error('id is null or empty.');
     const url = `${this.host}/api/texttospeech/v3.0-beta1/vcg/queryaccresourcefolderorfiles`;
@@ -241,50 +214,78 @@ class AccApi {
         responseSettings: { IncludePropertiesInFile: "Content" }
       }
     };
-    const p = axios.post(url, data, { headers: this.headers });
-    return p.then(resp => {
-      if (resp.status == 200) {
-        /**
-         * @type {{accResourceFolderOrFiles: {
-         * name: string,
-         * properties: {Content: string}
-         * }[]}}
-         */
-        const { accResourceFolderOrFiles: [thisFile] } = resp.data;
-        return thisFile;
-      }
-      throw new Error('Failed to fetch file content.');
-    });
+    /**
+     * @type {{accResourceFolderOrFiles: {
+     * name: string,
+     * properties: {Content: string}
+     * }[]}}
+     */
+    const { accResourceFolderOrFiles: [thisFile] } = await this.internalPost(url, data);
+    return thisFile;
   }
 
-  queryZhCNPolyPhonePron(text, range) {
+  /**
+   * query polyphone words' pronuciation
+   * @param {string} text 
+   * @param {{offset?: number, length?: number}} range 
+   * @returns 
+   */
+  async queryZhCNPolyPhonePron(text, range) {
     const url = `${this.host}/api/texttospeech/v3.0-beta1/vcg/query-polyphone-pron`;
     const data = {
       selectionOfPlainText: range,
       language: 'zh-CN',
       plainText: text,
-      phoneSetTypeNames: [ 'Sapi' ]
+      phoneSetTypeNames: ['Sapi']
     };
-    const p = axios.post(url, data, { headers: this.headers });
-    return p.then(resp => {
-      if (resp.status == 200) {
-        const { polyphoneWords } = resp.data;
-        const response = [];
-        for (const pw of polyphoneWords) {
-          if (pw.syllables && pw.syllables[0] && pw.syllables[0].phones && pw.syllables[0].phones[0]) {
-            response.push({
-              text: pw.text,
-              position: pw.position,
-              pronunciation: pw.syllables[0].phones[0].sapiPhone
-            });
-          }
-        }
-        return response;
+    const { polyphoneWords } = await this.internalPost(url, data);
+    const response = [];
+    for (const pw of polyphoneWords) {
+      if (pw.syllables && pw.syllables[0] && pw.syllables[0].phones && pw.syllables[0].phones[0]) {
+        response.push({
+          text: pw.text,
+          position: pw.position,
+          pronunciation: pw.syllables[0].phones[0].sapiPhone
+        });
       }
-      throw new Error('Failed to query polyphone pronunciation.');
-    });
+    }
+    return response;
+  }
+
+  async internalPost(url, data) {
+    const requestLimit = 50;
+    const limitWindow = 5000;
+    while (this.requests.length >= requestLimit) {
+      const timestamp = this.requests.shift();
+      await sleep(timestamp + limitWindow - Date.now());
+    }
+    let maxRetry = 3;
+    do {
+      this.requests.push(Date.now());
+      const resp = await axios.post(url, data, { headers: this.headers });
+      if (resp.status == 200 || resp.status == 202)
+        return resp.data;
+      if (resp.status == 503 || resp.status == 429) {
+        const delay = resp.headers['Retry-After'] || 1; // seconds
+        if (maxRetry--) {
+          await sleep(delay * 1000);
+          continue;
+        }
+      }
+      throw new Error(`Failed to send POST request to ${url}, HTTP status: ${resp.statusText}`);
+    } while (true);
   }
 };
+
+function sleep(ms) {
+  return new Promise(res => {
+    if (ms < 0) {
+      res();
+      return;
+    }
+    setTimeout(res, ms);
+  });
+}
 
 module.exports = AccApi;
 
