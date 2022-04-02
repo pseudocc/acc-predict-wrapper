@@ -47,7 +47,13 @@ const cliModule = {
           response.push({ text: lines[line - 1], line, errorred: true });
         }
         else if (result) {
-          response.push({ text: lines[line - 1], line, result });
+          const filtered = [];
+          for (const word of result) {
+            if (Array.prototype.some.call(word.text, checkPolyphone)) {
+              filtered.push(word);
+            }
+          }
+          response.push({ text: lines[line - 1], line, result: filtered });
         }
         line++;
       }
