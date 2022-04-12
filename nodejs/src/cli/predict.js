@@ -5,7 +5,7 @@ const uuid = require('uuid');
 const path = require('path');
 const inquirer = require('inquirer');
 const { default: axios } = require('axios');
-const { AccApi, getHost } = require('../api');
+const { AccApi, getHost, TtsApi } = require('../api');
 const commonBuilder = require('./common');
 const { prependPlugin } = require('../utils');
 
@@ -106,10 +106,16 @@ const cliModule = {
       alias: 'c',
       type: 'boolean',
       description: 'Delete uploaded intermediate files on end.'
+    },
+    api: {
+      alias: 'a',
+      choices: ['tts', 'acc'],
+      default: 'acc',
+      description: 'The predict API to use.'
     }
   },
   handler: async function (argv) {
-    const api = new AccApi(getHost(argv.region, argv.port), argv.key, argv.region == 'localhost');
+    const api = new AccApi(getHost(argv.region), argv.key);
     const encoding = argv.encoding;
     const name = argv.name || uuid.v4();
     const extname = path.extname(argv.input);
@@ -131,6 +137,23 @@ const cliModule = {
       let content = await fs.promises.readFile(argv.input, { encoding });
       content = await api.applyVoice(voice.name, content);
       console.log('Applied voice %s to the whole SSML file.', voice.name);
+
+      if (argv.api == 'tts') {
+        const ttsApi = new TtsApi(getHost(argv.region, 'tts'), argv.key);
+        const seq = await ttsApi.predictRoleAndStyle(content);
+
+        if (seq == null)
+          throw new Error('No conversation part is found.');
+        
+        content = await api.applyExpressAsSequence(content, seq, voicePreferences);
+        if (content == null)
+          throw new Error(`Failed to apply role and style to SSML: ${argv.input}`);
+        const outputPath = path.join(argv.output, basename + extname);
+        fs.writeFileSync(outputPath, content, { encoding });
+
+        console.log('Successfully predict role and style for %s.', argv.input);
+        return;
+      }
       
       // for multicast API call the plugin will be created automatically
       if (!voicePreferences)
@@ -184,6 +207,8 @@ const cliModule = {
 /**
  * @typedef {"Narrator"|"YoungAdultMale"|"OlderAdultMale"|"SeniorMale"|"YoungAdultFemale"
  * |"OlderAdultFemale"|"SeniorFemale"|"Boy"|"Girl"} ExpressAsRole
+ * 
+ * @typedef {"tts"|"acc"} ApiType
  * 
  * @typedef {object} VoicePreference
  * @property {ExpressAsRole} roleName
