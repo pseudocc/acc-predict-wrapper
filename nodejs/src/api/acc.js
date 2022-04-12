@@ -1,26 +1,22 @@
 'use strict';
 
+const BaseApi = require('./base');
 const { default: axios } = require('axios');
 
-class AccApi {
+class AccApi extends BaseApi {
   /**
-   * @type {EndpointURL}
+   * @type {number[]} request timestamps
    */
-  host;
-  headers;
   requests;
   /**
    * should check null for parameter host before calling this constructor
-   * @param {EndpointURL} host 
-   * @param {SubscriptionKey} subKey 
+   * @param {BaseApi.EndpointURL} host 
+   * @param {BaseApi.SubscriptionKey} subKey 
    */
   constructor(host, subKey) {
-    this.host = host;
-    this.headers = {
-      'accept': 'application/json',
-      'Ocp-Apim-Subscription-Key': subKey,
-      'Content-Type': 'application/json'
-    };
+    super(host, subKey);
+    this.headers['accept'] = 'application/json';
+    this.headers['Content-Type'] = 'application/json';
     this.requests = [];
   }
 
@@ -79,10 +75,54 @@ class AccApi {
   }
 
   /**
+   * @param {string} ssml SSML content
+   * @param {ExpressAsObject[]} seq express-as tags to tune
+   * @param {import('../cli/predict').VoicePreference[]} preferences
+   * @returns {string}
+   */
+  async applyExpressAsSequence(ssml, seq, preferences) {
+    const url = `${this.host}/api/texttospeech/v3.0-beta1/vcg/sequence-tune`;
+    const tuneSequence = [];
+    const data = { ssml, tuneSequence };
+    for (const o of seq) {
+      if (preferences) {
+        const preference = preferences.find(v => v.roleName == o.role);
+        if (preference) {
+          const tuneVoice = {
+            selectionBeginIndex: o.offset,
+            selectionLength: o.length,
+            updateType: 'Voice',
+            parameters: {
+              Name: preference.preferredVoiceInfo.name
+            }
+          };
+          tuneSequence.push(tuneVoice);
+        }
+      }
+      const tuneExpressAs = {
+        selectionBeginIndex: o.offset,
+        selectionLength: o.length,
+        updateType: 'ExpressAs',
+        propertyApplyKind: 'KeepUnSpecifiedProperties',
+        parameters: {
+          ExpressAsRole: o.role,
+          ExpressAsStyle: o.style,
+          ExpressAsAddSentenceBoundary: true
+        }
+      };
+      tuneSequence.push(tuneExpressAs);
+    }
+    const result = await this.internalPost(url, data);
+    if (result.isSuccess || result.isPartialSuccess)
+      return result.updatedSsml;
+    return null;
+  }
+
+  /**
    * upload ssml file to blob
    * @param {string} fileName target file name
    * @param {string} content SSML content
-   * @returns {Guid[]} corresponding file Ids
+   * @returns {BaseApi.Guid[]} corresponding file Ids
    */
   async uploadSsmlFiles(fileName, content) {
     const url = `${this.host}/api/texttospeech/v3.0-beta1/vcg/uploadssmlfiles`;
@@ -99,7 +139,7 @@ class AccApi {
     };
 
     /**
-     * @type {({vcgFiles: {id: Guid}[]})[]}
+     * @type {({vcgFiles: {id: BaseApi.Guid}[]})[]}
      */
     const [{ vcgFiles }] = await this.internalPost(url, data);
     return vcgFiles.map(v => v.id);
@@ -107,7 +147,7 @@ class AccApi {
 
   /**
    * delete ssml files
-   * @param {Guid[]} fileIds files to delete
+   * @param {BaseApi.Guid[]} fileIds files to delete
    */
   async deleteSsmlFiles(fileIds) {
     if (!fileIds || !fileIds.length)
@@ -123,13 +163,13 @@ class AccApi {
   /**
    * predict role/style for a single SSML file.
    * should upload first before calling this function.
-   * @param {Guid[]} ids SSML files' Id
+   * @param {BaseApi.Guid[]} ids SSML files' Id
    * @param {{
    * name: string, 
    * voicePreferences: import('../cli/predict').VoicePreference
    * toolVersion: string
    * }} options predict API options
-   * @returns {Guid} submitted batch task Id
+   * @returns {BaseApi.Guid} submitted batch task Id
    */
   async predictSsmlTags(ids, options) {
     if (ids == null || ids.length == 0)
@@ -150,7 +190,7 @@ class AccApi {
     }
 
     /**
-     * @type {{submittedTask: {id: Guid}}}
+     * @type {{submittedTask: {id: BaseApi.Guid}}}
      */
     const { submittedTask } = await this.internalPost(url, data);
     return submittedTask.id;
@@ -159,7 +199,7 @@ class AccApi {
 
   /**
    * query the processing status of a batch task by Id.
-   * @param {Guid} id batch task id
+   * @param {BaseApi.Guid} id batch task id
    */
   async queryBatchTask(id) {
     if (!id)
@@ -186,7 +226,7 @@ class AccApi {
 
     /**
      * @type {{tasks: {
-     * id: Guid,
+     * id: BaseApi.Guid,
      * state: BatchState
      * reportFile: {endpointWithSas: EndpointURL}
      * }[]}}
@@ -198,7 +238,7 @@ class AccApi {
 
   /**
    * get the content of SSML file by Id
-   * @param {Guid} id SSML file Id
+   * @param {BaseApi.Guid} id SSML file Id
    */
   async querySsmlContent(id) {
     if (!id == null)
@@ -295,10 +335,6 @@ function sleep(ms) {
 module.exports = AccApi;
 
 /**
- * @typedef {string} EndpointURL
- * @typedef {string} SubscriptionKey
- * @typedef {string} Guid
- *
  * @typedef {"StandardVoice"|"OwnTypicalCustomVoice"|"SpecialCustomVoice"
  * |"OtherTypicalCustomVoice"|"OwnBatchVoice"} VoiceType
  *
@@ -319,4 +355,11 @@ module.exports = AccApi;
  * @typedef {object} AccVersions
  * @property {string} apiVersion
  * @property {AccExternToolVersion|string} accPredictRoleAndStyleVersion
+ * 
+ * @typedef {object} ExpressAsObject
+ * @property {number} offset
+ * @property {number} length
+ * @property {string} role
+ * @property {string} style
+ * 
  */
