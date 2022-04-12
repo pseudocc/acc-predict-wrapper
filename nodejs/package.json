@@ -1,6 +1,6 @@
 {
   "name": "acc-predict-wrapper",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "create an end-to-end prediction experience",
   "main": "src/index.js",
   "directories": {
@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "axios": "^0.23.0",
+    "fast-xml-parser": "^4.0.7",
     "jsonfile": "^6.1.0",
     "uuid": "^8.3.2",
     "yargs": "^17.2.1"
