@@ -308,13 +308,17 @@ class AccApi extends BaseApi {
           return resp.data;
       }
       catch (e) {
+        let delay;
         const resp = e.response;
-        if (resp.status == 503 || resp.status == 429) {
-          const delay = resp.headers['retry-after'] || 1; // seconds
-          if (maxRetry--) {
-            await sleep(delay * 1000);
-            continue;
-          }
+        if (resp == null) {
+          delay = 1;
+        }
+        else if (resp.status == 503 || resp.status == 429) {
+          delay = resp.headers['retry-after'] || 1; // seconds
+        }
+        if (maxRetry-- && delay) {
+          await sleep(delay * 1000);
+          continue;
         }
         throw e;
       }
