@@ -27,7 +27,7 @@ class TtsApi extends BaseApi {
       ignoreAttributes: false,
       attributesGroupName: "#",
       alwaysCreateTextNode: true,
-      suppressEmptyNode: true,
+      suppressEmptyNode: false,
       unpairedTags: ['mstts:task', 's'],
     });
   }
