@@ -35,12 +35,13 @@ class TtsApi extends BaseApi {
   /**
    * Predict role and style for SSML
    * @param {string} ssml 
-   * @returns {import('./acc').ExpressAsObject[]}
+   * @returns {[string, import('./acc').ExpressAsObject[]]}
    */
   async predictRoleAndStyle(ssml) {
     if (ssml == null || ssml.length == 0)
       throw new Error('SSML is null or empty.');
     const obj = this.parser.parse(ssml);
+    const trimmedSsml = this.builder.build(obj);
     obj.speak.voice = {
       'mstts:task': { '#': { name: 'RoleStyle' } },
       ...obj.speak.voice
@@ -49,12 +50,13 @@ class TtsApi extends BaseApi {
     const resp = await axios.post(this.host, wrappedSsml, { headers: this.headers });
     if (resp.status != 200 || !resp.data.IsValid)
       return null;
-    return resp.data.Conversations.map(c => ({
+    const seq = resp.data.Conversations.map(c => ({
       offset: c.Begin,
       length: c.End - c.Begin,
       role: c.Role,
       style: c.Style
     }));
+    return [trimmedSsml, seq];
   }
 };
 

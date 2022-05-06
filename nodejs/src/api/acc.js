@@ -67,7 +67,7 @@ class AccApi extends BaseApi {
     const url = `${this.host}/api/texttospeech/v3.0-beta1/vcg/tune`;
     const data = {
       IsSelectionFullSsml: true,
-      Ssml: content,
+      Ssml: content.replace(/\r\n/g, '\n'),
       UpdateType: 'Voice',
       Parameters: { Name: voiceName }
     };
