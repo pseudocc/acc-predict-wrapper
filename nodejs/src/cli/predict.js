@@ -140,12 +140,12 @@ const cliModule = {
 
       if (argv.api == 'tts') {
         const ttsApi = new TtsApi(getHost(argv.region, 'tts'), argv.key);
-        const [trimmedSsml, seq] = await ttsApi.predictRoleAndStyle(content);
+        const seq = await ttsApi.predictRoleAndStyle(content);
 
         if (seq == null)
           throw new Error('No conversation part is found.');
         
-        content = await api.applyExpressAsSequence(trimmedSsml, seq, voicePreferences);
+        content = await api.applyExpressAsSequence(content, seq, voicePreferences);
         if (content == null)
           throw new Error(`Failed to apply role and style to SSML: ${argv.input}`);
         const outputPath = path.join(argv.output, basename + extname);
