@@ -194,7 +194,6 @@ class AccApi extends BaseApi {
      */
     const { submittedTask } = await this.internalPost(url, data);
     return submittedTask.id;
-
   }
 
   /**
@@ -315,6 +314,7 @@ class AccApi extends BaseApi {
         }
         else if (resp.status == 503 || resp.status == 429) {
           delay = resp.headers['retry-after'] || 1; // seconds
+          e.busy = 1;
         }
         if (maxRetry-- && delay) {
           await sleep(delay * 1000);
@@ -322,7 +322,7 @@ class AccApi extends BaseApi {
         }
         throw e;
       }
-    } while (true);
+    } while (maxRetry);
   }
 };
 

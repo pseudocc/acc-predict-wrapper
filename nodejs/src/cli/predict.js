@@ -193,7 +193,7 @@ const cliModule = {
     }
     catch (e) {
       console.error(e);
-      process.exit(1);
+      process.exit(e.busy ? 2 : 1);
     }
     finally {
       if (argv.clean && fileIds) {
