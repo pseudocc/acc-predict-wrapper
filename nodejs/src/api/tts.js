@@ -48,6 +48,8 @@ class TtsApi extends BaseApi {
           e.busy = 1;
         }
         if (maxRetry--) {
+          console.error('Server responsed with code %s, retrying...',
+            resp ? resp.status : undefined);
           await sleep(1000);
           continue;
         }
@@ -55,7 +57,7 @@ class TtsApi extends BaseApi {
       }
     } while (maxRetry);
 
-    if (resp.status != 200 || !resp.data.IsValid)
+    if (resp && (resp.status < 200 || resp.status >= 300 || !resp.data.IsValid))
       return null;
 
     const seq = resp.data.Conversations.map(c => ({
