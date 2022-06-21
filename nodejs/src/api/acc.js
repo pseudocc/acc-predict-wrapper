@@ -2,6 +2,7 @@
 
 const BaseApi = require('./base');
 const { default: axios } = require('axios');
+const { sleep } = require('../utils');
 
 class AccApi extends BaseApi {
   /**
@@ -325,16 +326,6 @@ class AccApi extends BaseApi {
     } while (maxRetry);
   }
 };
-
-function sleep(ms) {
-  return new Promise(res => {
-    if (ms < 0) {
-      res();
-      return;
-    }
-    setTimeout(res, ms);
-  });
-}
 
 module.exports = AccApi;
 

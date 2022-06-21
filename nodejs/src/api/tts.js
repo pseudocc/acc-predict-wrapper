@@ -3,6 +3,7 @@
 const BaseApi = require('./base');
 const cheerio = require('cheerio');
 const { default: axios } = require('axios');
+const { sleep } = require('../utils');
 
 class TtsApi extends BaseApi {
   parser;
@@ -46,7 +47,7 @@ class TtsApi extends BaseApi {
         if (resp != null && (resp.status == 503 || resp.status == 429)) {
           e.busy = 1;
         }
-        if (maxRetry-- && delay) {
+        if (maxRetry--) {
           await sleep(1000);
           continue;
         }
