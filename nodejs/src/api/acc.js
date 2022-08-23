@@ -2,6 +2,7 @@
 
 const BaseApi = require('./base');
 const { default: axios } = require('axios');
+const { sleep } = require('../utils');
 
 class AccApi extends BaseApi {
   /**
@@ -303,7 +304,7 @@ class AccApi extends BaseApi {
       this.requests.push(Date.now());
       try {
         const resp = await axios.post(url, data, { headers: this.headers });
-        if (resp.status == 200 || resp.status == 202)
+        if (resp && resp.status >= 200 && resp.status < 300)
           return resp.data;
       }
       catch (e) {
@@ -317,6 +318,8 @@ class AccApi extends BaseApi {
           e.busy = 1;
         }
         if (maxRetry-- && delay) {
+          console.error('Server responsed with code %s, retrying...',
+            resp ? resp.status : undefined);
           await sleep(delay * 1000);
           continue;
         }
@@ -325,16 +328,6 @@ class AccApi extends BaseApi {
     } while (maxRetry);
   }
 };
-
-function sleep(ms) {
-  return new Promise(res => {
-    if (ms < 0) {
-      res();
-      return;
-    }
-    setTimeout(res, ms);
-  });
-}
 
 module.exports = AccApi;
 

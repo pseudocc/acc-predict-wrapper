@@ -16,4 +16,17 @@ function prependPlugin(content, voices) {
   return `<!--ID=B7267351-473F-409D-9765-754A8EBCDE05;Version=1|${mapString}-->\n${content}`;
 }
 
-module.exports = { prependPlugin };
+/**
+ * @param {number} ms number of ms to sleep
+ */
+function sleep(ms) {
+  return new Promise(res => {
+    if (ms < 0) {
+      res();
+      return;
+    }
+    setTimeout(res, ms);
+  });
+}
+
+module.exports = { prependPlugin, sleep };

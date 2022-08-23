@@ -3,6 +3,7 @@
 const BaseApi = require('./base');
 const cheerio = require('cheerio');
 const { default: axios } = require('axios');
+const { sleep } = require('../utils');
 
 class TtsApi extends BaseApi {
   parser;
@@ -46,7 +47,9 @@ class TtsApi extends BaseApi {
         if (resp != null && (resp.status == 503 || resp.status == 429)) {
           e.busy = 1;
         }
-        if (maxRetry-- && delay) {
+        if (maxRetry--) {
+          console.error('Server responsed with code %s, retrying...',
+            resp ? resp.status : undefined);
           await sleep(1000);
           continue;
         }
@@ -54,7 +57,7 @@ class TtsApi extends BaseApi {
       }
     } while (maxRetry);
 
-    if (resp.status != 200 || !resp.data.IsValid)
+    if (resp && (resp.status < 200 || resp.status >= 300 || !resp.data.IsValid))
       return null;
 
     const seq = resp.data.Conversations.map(c => ({
