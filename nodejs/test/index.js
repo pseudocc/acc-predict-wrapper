@@ -58,6 +58,26 @@ describe('Unit test', function () {
     });
   });
 
+  describe('# polypohone', function () {
+    this.timeout(1e4);
+    const outputPath = path.join(testRoot, 'output', 'pron.json');
+    it('should success', function (done) {
+      const p = fork(entry, [
+        'polyphone',
+        `--key="${testKey}"`,
+        `--region=${testRegion}`,
+        `--input="${path.join(testRoot, 'input.txt')}"`,
+        `--output="${outputPath}"`,
+        '--voice="XiaomoNeural"',
+      ]);
+      p.on('exit', function (code) {
+        assert.equal(code, 0);
+        assert.ok(fs.existsSync(outputPath));
+        done();
+      });
+    });
+  });
+
   describe('# Predict SSML', function () {
     describe('monocast', function () {
       this.timeout(1e6);
@@ -69,7 +89,8 @@ describe('Unit test', function () {
           `--region=${testRegion}`,
           `--input="${path.join(testRoot, 'test.xml')}"`,
           `--output="${outputRoot}"`,
-          '--voice="XiaomoNeural"'
+          '--voice="XiaomoNeural"',
+          '--clean'
         ]);
         p.on('exit', function (code) {
           assert.equal(code, 0);
@@ -89,7 +110,29 @@ describe('Unit test', function () {
           `--region=${testRegion}`,
           `--input="${path.join(testRoot, 'test.xml')}"`,
           `--output="${outputRoot}"`,
-          `--preferences="${path.join(testRoot, 'preset.json')}"`
+          `--preferences="${path.join(testRoot, 'preset.json')}"`,
+          '--clean'
+        ]);
+        p.on('exit', function (code) {
+          assert.equal(code, 0);
+          assert.ok(fs.existsSync(path.join(outputRoot, 'test.xml')));
+          done();
+        });
+      });
+    });
+
+    describe('monocast tts', function () {
+      this.timeout(1e4);
+      const outputRoot = path.join(testRoot, 'output', 'monocast-tts');
+      it('should success', function (done) {
+        const p = fork(entry, [
+          'predict',
+          `--key="${testKey}"`,
+          `--region=${testRegion}`,
+          `--input="${path.join(testRoot, 'test.xml')}"`,
+          `--output="${outputRoot}"`,
+          '--voice="XiaomoNeural"',
+          '--api=tts'
         ]);
         p.on('exit', function (code) {
           assert.equal(code, 0);

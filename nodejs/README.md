@@ -50,10 +50,10 @@ node src/index.js voices --key=YOUR_KEY_GOES_HERE --region=YOUR_REGION
 
 ### Predict SSML file
 
-Prediction will take about 150 seconds to finish.
+Prediction will take about 150 seconds to finish by using ACC API (default), using TTS API will reduce this to 20 seconds or lower.
 
 ```bash
-node src/index.js predict --key=YOUR_KEY_GOES_HERE --region=YOUR_REGION --input=YOUR_SSML.xml --output=OUTPUT_DIRECTORY --voice=YOUR_FAVORITE_VOICE
+node src/index.js predict --key=YOUR_KEY_GOES_HERE --region=YOUR_REGION --input=YOUR_SSML.xml --output=OUTPUT_DIRECTORY --voice=YOUR_FAVORITE_VOICE --api=tts
 ```
 
   - `voice`: Please make sure you have the right access to this voice
@@ -68,6 +68,18 @@ node src/index.js predict --key=YOUR_KEY_GOES_HERE --region=YOUR_REGION --input=
 You can also specify the tool version with something like `--tool=1.0.2`. Refer to the section `See current API Versions` for more.
 
 Feed the tool with `--clean` to remove all intermediate SSML files generated during the process.
+
+### Query Polyphone Pronunciation
+
+This is an ACC internal API for certain partner to get the pronunciation of polyphone words without sythesize the audio and listen to it.
+
+```bash
+node src/index.js polyphone --key=YOUR_KEY_GOES_HERE --region=YOUR_REGION --input=YOUR_TEXT.txt --output=OUTPUT_JSON --voice=YOUR_FAVORITE_VOICE
+```
+
+You can ignore certain polyphone words by removing them from variable `polyphoneWords` in `src/cli/polyphone.js`.
+
+This CLI tool will call ACC API for each line in the input file and store all the result in a list.
 
 ### Notes
 
