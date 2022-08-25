@@ -58,6 +58,7 @@ node src/index.js predict --key=YOUR_KEY_GOES_HERE --region=YOUR_REGION --input=
 
   - `voice`: Please make sure you have the right access to this voice
     and it supports role plays and styles/emotions.
+  - `preferences`: Set this option will also take effects for muliticast experience.
 
 If you are trying to experience the multicast performance which is not currently enabled on Audio Content Creation web portal, try the following command line.
 

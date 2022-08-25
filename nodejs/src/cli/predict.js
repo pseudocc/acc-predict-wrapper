@@ -76,14 +76,12 @@ const cliModule = {
       coerce: function (arg) {
         return arg && require(path.resolve(arg));
       },
-      conflicts: 'voice',
       description: 'A JSON file indicating the voice perferences for different roles. '
         + 'Role names and voice types are case-sensitive. '
         + 'This is the parameter for multicast performance.'
     },
     voice: {
       alias: 'v',
-      conflicts: 'preferences',
       description: 'The name of the voice to apply to the whole SSML file. '
         + 'This is the parameter for monocast performance.'
     },
