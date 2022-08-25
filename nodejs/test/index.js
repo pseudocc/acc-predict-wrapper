@@ -67,8 +67,7 @@ describe('Unit test', function () {
         `--key="${testKey}"`,
         `--region=${testRegion}`,
         `--input="${path.join(testRoot, 'input.txt')}"`,
-        `--output="${outputPath}"`,
-        '--voice="XiaomoNeural"',
+        `--output="${outputPath}"`
       ]);
       p.on('exit', function (code) {
         assert.equal(code, 0);

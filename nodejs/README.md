@@ -74,7 +74,7 @@ Feed the tool with `--clean` to remove all intermediate SSML files generated dur
 This is an ACC internal API for certain partner to get the pronunciation of polyphone words without sythesize the audio and listen to it.
 
 ```bash
-node src/index.js polyphone --key=YOUR_KEY_GOES_HERE --region=YOUR_REGION --input=YOUR_TEXT.txt --output=OUTPUT_JSON --voice=YOUR_FAVORITE_VOICE
+node src/index.js polyphone --key=YOUR_KEY_GOES_HERE --region=YOUR_REGION --input=YOUR_TEXT.txt --output=OUTPUT_JSON
 ```
 
 You can ignore certain polyphone words by removing them from variable `polyphoneWords` in `src/cli/polyphone.js`.
